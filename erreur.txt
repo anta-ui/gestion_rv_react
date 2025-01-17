@@ -1,0 +1,114 @@
+✔ Container django_backend  Recreated                                0.1s 
+ ✔ Container mysql_db        Recreated                                0.1s 
+ ✔ Container react_frontend  Recreated                                0.1s 
+Attaching to django_backend, mysql_db, react_frontend
+mysql_db        | 2025-01-17 11:41:10+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.40-1.el9 started.
+mysql_db        | 2025-01-17 11:41:10+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+mysql_db        | 2025-01-17 11:41:10+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.40-1.el9 started.
+mysql_db        | '/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
+mysql_db        | 2025-01-17T11:41:11.235956Z 0 [Warning] [MY-011068] [Server] The syntax '--skip-host-cache' is deprecated and will be removed in a future release. Please use SET GLOBAL host_cache_size=0 instead.
+mysql_db        | 2025-01-17T11:41:11.237120Z 0 [Warning] [MY-010918] [Server] 'default_authentication_plugin' is deprecated and will be removed in a future release. Please use authentication_policy instead.
+mysql_db        | 2025-01-17T11:41:11.237142Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.0.40) starting as process 1
+mysql_db        | 2025-01-17T11:41:11.243592Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+django_backend  | /usr/local/lib/python3.10/site-packages/django/core/management/commands/makemigrations.py:160: RuntimeWarning: Got an error checking a consistent migration history performed for database connection 'default': (2002, "Can't connect to server on 'db' (115)")
+django_backend  |   warnings.warn(
+django_backend  | No changes detected
+mysql_db        | 2025-01-17T11:41:11.524563Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+django_backend  | Traceback (most recent call last):
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 275, in ensure_connection
+django_backend  |     self.connect()
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+django_backend  |     return func(*args, **kwargs)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+django_backend  |     self.connection = self.get_new_connection(conn_params)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+django_backend  |     return func(*args, **kwargs)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/mysql/base.py", line 255, in get_new_connection
+django_backend  |     connection = Database.connect(**conn_params)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/MySQLdb/__init__.py", line 121, in Connect
+django_backend  |     return Connection(*args, **kwargs)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/MySQLdb/connections.py", line 193, in __init__
+django_backend  |     super().__init__(*args, **kwargs2)
+django_backend  | MySQLdb.OperationalError: (2002, "Can't connect to server on 'db' (115)")
+django_backend  | 
+django_backend  | The above exception was the direct cause of the following exception:
+django_backend  | 
+django_backend  | Traceback (most recent call last):
+django_backend  |   File "/usr/src/app/backend/manage.py", line 22, in <module>
+django_backend  |     main()
+django_backend  |   File "/usr/src/app/backend/manage.py", line 18, in main
+django_backend  |     execute_from_command_line(sys.argv)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+django_backend  |     utility.execute()
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/core/management/__init__.py", line 436, in execute
+django_backend  |     self.fetch_command(subcommand).run_from_argv(self.argv)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/core/management/base.py", line 412, in run_from_argv
+django_backend  |     self.execute(*args, **cmd_options)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/core/management/base.py", line 458, in execute
+django_backend  |     output = self.handle(*args, **options)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/core/management/base.py", line 106, in wrapper
+django_backend  |     res = handle_func(*args, **kwargs)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/core/management/commands/migrate.py", line 100, in handle
+django_backend  |     self.check(databases=[database])
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/core/management/base.py", line 485, in check
+django_backend  |     all_issues = checks.run_checks(
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/core/checks/registry.py", line 88, in run_checks
+django_backend  |     new_errors = check(app_configs=app_configs, databases=databases)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/core/checks/database.py", line 13, in check_database_backends
+django_backend  |     issues.extend(conn.validation.check(**kwargs))
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/mysql/validation.py", line 9, in check
+django_backend  |     issues.extend(self._check_sql_mode(**kwargs))
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/mysql/validation.py", line 14, in _check_sql_mode
+django_backend  |     self.connection.sql_mode & {"STRICT_TRANS_TABLES", "STRICT_ALL_TABLES"}
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/utils/functional.py", line 47, in __get__
+django_backend  |     res = instance.__dict__[self.name] = self.func(instance)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/mysql/base.py", line 451, in sql_mode
+django_backend  |     sql_mode = self.mysql_server_data["sql_mode"]
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/utils/functional.py", line 47, in __get__
+django_backend  |     res = instance.__dict__[self.name] = self.func(instance)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/mysql/base.py", line 407, in mysql_server_data
+django_backend  |     with self.temporary_connection() as cursor:
+django_backend  |   File "/usr/local/lib/python3.10/contextlib.py", line 135, in __enter__
+django_backend  |     return next(self.gen)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 691, in temporary_connection
+django_backend  |     with self.cursor() as cursor:
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+django_backend  |     return func(*args, **kwargs)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 316, in cursor
+django_backend  |     return self._cursor()
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 292, in _cursor
+django_backend  |     self.ensure_connection()
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+django_backend  |     return func(*args, **kwargs)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 274, in ensure_connection
+django_backend  |     with self.wrap_database_errors:
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+django_backend  |     raise dj_exc_value.with_traceback(traceback) from exc_value
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 275, in ensure_connection
+django_backend  |     self.connect()
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+django_backend  |     return func(*args, **kwargs)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+django_backend  |     self.connection = self.get_new_connection(conn_params)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+django_backend  |     return func(*args, **kwargs)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/django/db/backends/mysql/base.py", line 255, in get_new_connection
+django_backend  |     connection = Database.connect(**conn_params)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/MySQLdb/__init__.py", line 121, in Connect
+django_backend  |     return Connection(*args, **kwargs)
+django_backend  |   File "/usr/local/lib/python3.10/site-packages/MySQLdb/connections.py", line 193, in __init__
+django_backend  |     super().__init__(*args, **kwargs2)
+django_backend  | django.db.utils.OperationalError: (2002, "Can't connect to server on 'db' (115)")
+mysql_db        | 2025-01-17T11:41:11.792661Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+mysql_db        | 2025-01-17T11:41:11.792701Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+mysql_db        | 2025-01-17T11:41:11.799655Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysql_db        | 2025-01-17T11:41:11.828042Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+mysql_db        | 2025-01-17T11:41:11.828115Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.40'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+django_backend exited with code 0
+mysql_db        | 2025-01-17T11:41:12.516147Z 8 [Warning] [MY-013360] [Server] Plugin mysql_native_password reported: ''mysql_native_password' is deprecated and will be removed in a future release. Please use caching_sha2_password instead'
+django_backend  | No changes detected
+django_backend  | Operations to perform:
+django_backend  |   Apply all migrations: admin, auth, contenttypes, sessions
+django_backend  | Running migrations:
+django_backend  |   No migrations to apply.
+django_backend  | Watching for file changes with StatReloader
