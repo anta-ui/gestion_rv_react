@@ -8,15 +8,23 @@ export default function Register ()  {
     email: '',
     password: '',
   });
+  const [loading, setLoading] = useState(false);  // Nouvel état pour suivre le chargement
+  const [error, setError] = useState('');  // Nouvel état pour gérer les erreurs
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');  // Réinitialiser les erreurs à chaque tentative d'envoi
+
     try {
       await api.post('register/', formData);
       navigate('/login');
     } catch (error) {
+      setError('Erreur d\'inscription, veuillez réessayer.');  // Affichage de l'erreur
       console.error('Registration error:', error);
+    } finally {
+      setLoading(false);  // Réinitialiser l'état de chargement
     }
   };
 
@@ -24,6 +32,7 @@ export default function Register ()  {
     <div className="flex items-center justify-end h-screen bg-cover bg-center bg-no-repeat text-[#210202] px-12" style={{ backgroundImage: "url('/images/back6.jpg')" }}>
       <div className="w-full max-w-md">
         <h2 className="text-6xl font-bold text-left mb-8">Inscription</h2>
+        {error && <p className="text-red-600 mb-4">{error}</p>}  {/* Affichage du message d'erreur */}
         <form onSubmit={handleSubmit} className="space-y-6 text-left">
           <div>
             <label htmlFor="username" className="block font-semibold">Nom d'utilisateur :</label>
@@ -59,13 +68,17 @@ export default function Register ()  {
             />
           </div>
           <div className="flex justify-end space-x-4">
-          <button type="submit" className="px-5 py-2 bg-[#210202] text-white rounded-lg hover:bg-[#582900]">S'inscrire</button>
+            <button 
+              type="submit" 
+              className="px-5 py-2 bg-[#210202] text-white rounded-lg hover:bg-[#582900]"
+              disabled={loading}  // Désactiver le bouton pendant le chargement
+            >
+              {loading ? 'Chargement...' : "S'inscrire"}  {/* Afficher un texte différent pendant le chargement */}
+            </button>
             <a href="/" className="px-5 py-2 bg-[#210202] text-white rounded-lg hover:bg-[#582900]">Retour</a>
-            
           </div>
         </form>
       </div>
     </div>
   );
 };
-

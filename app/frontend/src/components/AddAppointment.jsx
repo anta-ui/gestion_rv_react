@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAppointments } from '../hooks/useAppointments';
 
+
+
+
+// AddAppointment.js
 const AddAppointment = () => {
+  const { handleAdd } = useAppointments();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [appointmentType, setAppointmentType] = useState('');
@@ -18,14 +24,14 @@ const AddAppointment = () => {
     if (dayOfWeek === 0 || dayOfWeek === 6) return false;
 
     if (dayOfWeek >= 1 && dayOfWeek <= 4) {
-      if ((appointmentHour < 8 || (appointmentHour === 14 && appointmentMinute > 0)) && 
+      if ((appointmentHour < 8 || (appointmentHour === 14 && appointmentMinute > 0)) &&
           (appointmentHour < 15 || (appointmentHour === 18 && appointmentMinute > 0))) {
         return false;
       }
     }
 
     if (dayOfWeek === 5) {
-      if ((appointmentHour < 8 || (appointmentHour === 13 && appointmentMinute > 30)) && 
+      if ((appointmentHour < 8 || (appointmentHour === 13 && appointmentMinute > 30)) &&
           (appointmentHour < 15 || (appointmentHour === 18 && appointmentMinute > 0))) {
         return false;
       }
@@ -55,13 +61,19 @@ const AddAppointment = () => {
     };
 
     try {
-      await api.post('appointments/', data);
-      navigate('/appointments');
+      const success = await handleAdd(data);
+      if (success) {
+        navigate('/appointment-list');
+      }
     } catch (error) {
-      setError(error.response?.data?.detail || 'Erreur lors de la création du rendez-vous');
-      console.error('Erreur détaillée:', error.response ? error.response.data : error);
+      setError('Erreur lors de la création du rendez-vous');
+      console.error('Erreur détaillée:', error);
     }
   };
+
+  // ... reste du JSX de votre composant AddAppointment
+
+
 
   return (
     <div className="flex items-center justify-end h-screen bg-cover bg-center bg-no-repeat text-[#210202] px-12" style={{ backgroundImage: "url('/images/back6.jpg')" }}>
@@ -115,10 +127,10 @@ const AddAppointment = () => {
             </button>
             <button 
               type="button" 
-              onClick={() => navigate('/appointments')}
+              onClick={() => navigate('/dashboard')}
               className="px-5 py-2 bg-[#210202] text-white rounded-lg hover:bg-[#582900]"
             >
-              Retour
+              Annuler
             </button>
             
           </div>

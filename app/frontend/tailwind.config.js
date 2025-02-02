@@ -7,7 +7,7 @@ module.exports = {
     extend: {
       colors:{
         deepRed:'#210202',
-        marRed:'linear-gradient(to bottom, #210202, #6b0101)',
+        
       }
     },
   },

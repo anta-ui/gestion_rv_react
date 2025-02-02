@@ -1,9 +1,13 @@
 // context/AuthContext.js
 import React, { createContext, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCredentials, logout } from '../features/authSlice';
+import { setCredentials } from '../features/authSlice';
 
-const AuthContext = createContext();
+const AuthContext = createContext(
+  {
+    logout: () => {},
+  }
+);
 
 export const AuthProvider = ({ children }) => {
   const dispatch = useDispatch();
@@ -28,4 +32,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// ✅ Garde uniquement CETTE exportation
 export const useAuth = () => useContext(AuthContext);

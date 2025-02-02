@@ -7,7 +7,8 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import AddAppointment from './components/AddAppointment';
 import AppointmentList from './components/AppointmentList';
-import CancelAppointment from './components/CancelAppointment';
+
+import EditAppointment from './components/EditAppointment';
 import './index.css';
 
 const HomePage = () => {
@@ -54,8 +55,10 @@ const App = () => {
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/add-appointment" element={<AddAppointment />} />
+            <Route path="appointment-list" element={<AppointmentList />} />
             <Route path="/appointments" element={<AppointmentList />} />
-            <Route path="/cancel-appointment" element={<CancelAppointment />} />
+            
+            <Route path="/appointments/edit/:appointmentId" element={<EditAppointment />} />
           </Route>
 
           {/* Route par défaut */}

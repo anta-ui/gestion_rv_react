@@ -8,6 +8,16 @@ from rest_framework.reverse import reverse
 from django.utils import timezone  # Pour utiliser les fonctions de gestion des fuseaux horaires
 from django.db.models import Count
 from datetime import timedelta
+from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from django.http import JsonResponse 
+from .models import CanceledAppointment
+from rest_framework.permissions import AllowAny
+
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 
 @api_view(['GET'])
@@ -20,6 +30,7 @@ def api_root(request, format=None):
     })
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register_user(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
@@ -39,8 +50,17 @@ def appointment_stats(request):
         appointments = Appointment.objects.filter(user=request.user)
     
     total_appointments = appointments.count()
-    upcoming_appointments = appointments.filter(date__gte=today).count()
-    past_appointments = appointments.filter(date__lt=today).count()
+    upcoming_appointments = appointments.filter(
+        date__gte=today,
+        status='active'  # Ajout du filtre status
+    ).count()
+    past_appointments = appointments.filter(
+        date__lt=today,
+        status='active'  # Ajout du filtre status
+    ).count()
+    canceled_appointments = appointments.filter(
+        status='cancelled'  # Comptage des rendez-vous annulés
+    ).count()
 
     six_months_ago = today - timedelta(days=180)
     appointments_by_month = (
@@ -50,32 +70,20 @@ def appointment_stats(request):
         .order_by('date__month')
     )
 
-    next_appointments = appointments.filter(
-        date__gte=today
-    ).order_by('date')[:5].values('title', 'date')
-
-    # Formatage des heures et des minutes après récupération
-    for appointment in next_appointments:
-        appointment['time'] = appointment['date'].strftime('%H:%M')
-
     return Response({
         'total_appointments': total_appointments,
         'upcoming_appointments': upcoming_appointments,
         'past_appointments': past_appointments,
-        'appointments_by_month': appointments_by_month,
-        'next_appointments': list(next_appointments)
+        'canceled_appointments': canceled_appointments,  # Ajout dans la réponse
+        'appointments_by_month': appointments_by_month
     })
-
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.is_superuser:
-            return Appointment.objects.all()
         return Appointment.objects.filter(user=self.request.user)
-
     
     from rest_framework.exceptions import ValidationError
 
@@ -114,3 +122,135 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 return False
         return True
 
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def appointment_stats(request):
+    today = timezone.now().date()
+
+    # Filtrer les rendez-vous de l'utilisateur
+    if request.user.is_superuser:
+        appointments = Appointment.objects.all()
+    else:
+        appointments = Appointment.objects.filter(user=request.user)
+    
+    # Comptage des rendez-vous
+    total_appointments = appointments.count()
+    
+    # Rendez-vous à venir
+    upcoming_appointments = appointments.filter(
+        date__gte=today,
+        status='active'  # Seulement les rendez-vous en cours
+    ).count()
+    
+    # Rendez-vous passés
+    past_appointments = appointments.filter(
+        date__lt=today,
+        status='active'  # Seulement les rendez-vous en cours
+    ).count()
+    
+    # Rendez-vous annulés
+    canceled_appointments = appointments.filter(
+        status='cancelled'  # Comptage des rendez-vous annulés
+    ).count()
+
+    # Rendez-vous annulés dans un tableau séparé
+    canceled_appointments_list = appointments.filter(
+        status='cancelled'
+    )
+    
+    six_months_ago = today - timedelta(days=180)
+    appointments_by_month = (
+        appointments.filter(date__gte=six_months_ago)
+        .values('date__month')
+        .annotate(count=Count('id'))
+        .order_by('date__month')
+    )
+
+    # Retourner les statistiques
+    return Response({
+        'total_appointments': total_appointments,
+        'upcoming_appointments': upcoming_appointments,
+        'past_appointments': past_appointments,
+        'canceled_appointments': canceled_appointments,  # Ajout dans la réponse
+        'appointments_by_month': appointments_by_month,
+        'canceled_appointments_list': canceled_appointments_list.values('id', 'date')  # Liste des rendez-vous annulés
+    })
+
+from .models import CanceledAppointment  # Assurez-vous que CanceledAppointment est bien défini
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cancel_appointment(request, appointment_id):
+    try:
+        # Ajouter des logs
+        print(f"Tentative d'annulation du rendez-vous {appointment_id}")
+        
+        appointment = get_object_or_404(Appointment, id=appointment_id, user=request.user)
+        print(f"État initial du rendez-vous : {appointment.status}")
+        
+        appointment.status = 'cancelled'
+        appointment.save()
+        
+        # Vérifier que le changement a été sauvegardé
+        appointment.refresh_from_db()
+        print(f"État après sauvegarde : {appointment.status}")
+        
+        return JsonResponse({
+            "status": "success",
+            "message": "Rendez-vous annulé avec succès",
+            "appointment": {
+                "id": appointment.id,
+                "status": appointment.status
+            }
+        })
+    except Exception as e:
+        print(f"Erreur lors de l'annulation : {str(e)}")
+        return JsonResponse({
+            "status": "error",
+            "message": str(e)
+        }, status=400)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_appointment(request, appointment_id):  # Le paramètre doit correspondre à l'URL
+    try:
+        appointment = get_object_or_404(Appointment, id=appointment_id)
+        
+        # Mettre à jour les champs du rendez-vous
+        if 'date' in request.data:
+            appointment.date = request.data['date']
+        if 'description' in request.data:
+            appointment.description = request.data['description']
+        
+        appointment.save()
+        
+        return JsonResponse({
+            "status": "success",
+            "message": "Rendez-vous modifié avec succès",
+            "appointment": {
+                "id": appointment.id,
+                "date": appointment.date,
+                "description": appointment.description
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "message": str(e)
+        }, status=400)
+
+
+@api_view(['GET'])
+def appointment_detail(request, pk):
+    try:
+        appointment = Appointment.objects.get(pk=pk)
+    except Appointment.DoesNotExist:
+        return Response({"error": "Appointment not found"}, status=404)
+
+    serializer = AppointmentSerializer(appointment)
+    return Response(serializer.data)

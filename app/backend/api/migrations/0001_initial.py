@@ -5,6 +5,21 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+from django.db import migrations
+
+def set_default_status(apps, schema_editor):
+    Appointment = apps.get_model('appointments', 'Appointment')
+    Appointment.objects.filter(status__isnull=True).update(status='active')
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ('appointments', 'previous_migration'),
+    ]
+
+    operations = [
+        migrations.RunPython(set_default_status),
+    ]
+
 class Migration(migrations.Migration):
 
     initial = True
