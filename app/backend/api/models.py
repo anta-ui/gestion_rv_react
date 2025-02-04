@@ -21,7 +21,9 @@ class Appointment(models.Model):
         default='active'
     )
     def __str__(self):
-        return f"{self.title} - {self.user.username}"
+        user_info = self.user.username if self.user else "Utilisateur inconnu"
+        return f"Rendez-vous avec {user_info} le {self.date}"
+
 
     class Meta:
         get_latest_by = 'date'

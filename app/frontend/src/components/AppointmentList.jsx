@@ -66,21 +66,23 @@ const AppointmentList = () => {
         return () => clearInterval(interval);
     }, [navigate]);
 
+   
     const fetchAppointmentsAndStats = async () => {
         setLoading(true);
         setError(null);
         try {
-            const [appointmentsResponse] = await Promise.all([api.get('/appointments/')]);
-
-            if (appointmentsResponse.data) {
+            const response = await api.get('/appointments/');
+            
+            if (response.data) {
                 const now = new Date();
-                const processedAppointments = appointmentsResponse.data.map(appt => ({
-                    ...appt,
+                const processedAppointments = response.data.map(appt => ({
+                    id: appt.id,
                     date: new Date(appt.date).toISOString(),
-                    description: appt.description || 'Aucune description', // Assurez-vous que la description est définie
-                    status: appt.status || 'active'
+                    description: appt.description || 'Aucune description',  // Correction ici
+                    status: appt.status,
+                    user: appt.user
                 }));
-
+    
                 setAppointments({
                     current: processedAppointments.filter(appt => new Date(appt.date) >= now && appt.status === 'active'),
                     past: processedAppointments.filter(appt => new Date(appt.date) < now && appt.status === 'active'),
@@ -89,10 +91,8 @@ const AppointmentList = () => {
             }
         } catch (error) {
             console.error('Erreur lors de la récupération des données:', error);
-            setError("Erreur lors de la récupération des rendez-vous. Veuillez réessayer.");
-            if (error.response?.status === 401) {
-                handleLogout();
-            }
+            setError("Erreur lors de la récupération des rendez-vous.");
+            if (error.response?.status === 401) handleLogout();
         } finally {
             setLoading(false);
         }
@@ -145,6 +145,7 @@ const AppointmentList = () => {
                     </tr>
                 </thead>
                 <tbody>
+                    
                     {data.length > 0 ? (
                         data.map(appt => (
                             <tr key={appt.id} className="border-b hover:bg-gray-50">
@@ -168,7 +169,7 @@ const AppointmentList = () => {
                                             </button>
                                             <button 
                                                 onClick={() => handleModify(appt.id)}
-                                                className="bg-deepRed hover:bg-amber-100 text-white px-2 py-1 rounded flex items-center"
+                                                className="bg-deepRed hover:bg-amber-100 text-white hover:text-deepRed px-2 py-1 rounded flex items-center"
                                             >
                                                 <Edit className="mr-1" /> Modifier
                                             </button>

@@ -17,6 +17,7 @@ urlpatterns = [
     path('appointments/<int:pk>/', views.appointment_detail, name='appointment-detail'),
     path('appointments/<int:appointment_id>/cancel/', cancel_appointment, name='cancel-appointment'),
     path('appointments/<int:appointment_id>/update/', views.update_appointment, name='update-appointment'),
+    path('test-email/', views.test_email, name='test-email'),
     # Placer le router.urls en dernier
     path('', include(router.urls)),
 ]

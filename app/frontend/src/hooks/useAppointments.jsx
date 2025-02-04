@@ -72,14 +72,17 @@ const handleCancel = async (appointmentId) => {
 };
 const handleAdd = async (appointmentData) => {
   try {
-    await api.post('appointments/', appointmentData);
-    await fetchStats();  // Utiliser le nouveau nom ici
-    return true;
+    const response = await api.post('/appointments/', {
+      date: appointmentData.date,
+      description: appointmentData.description  // Assurez-vous de passer la description
+    });
+    return true; // Retourner true si la requête est réussie
   } catch (error) {
-    console.error('Erreur lors de l\'ajout:', error);
+    console.error("Erreur lors de l'ajout:", error);
     return false;
   }
 };
+
 
   return {
     appointmentsStats,

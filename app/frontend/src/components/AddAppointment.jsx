@@ -42,24 +42,23 @@ const AddAppointment = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
-
+  
     if (!selectedDate || !selectedTime || !appointmentType) {
       setError('Veuillez remplir tous les champs.');
       return;
     }
-
+  
     if (!checkTimeSlotValidity(selectedDate, selectedTime)) {
       setError('Le rendez-vous ne respecte pas les créneaux horaires.');
       return;
     }
-
+  
     const appointmentDateTime = new Date(`${selectedDate}T${selectedTime}:00`);
     const data = {
       date: appointmentDateTime.toISOString(),
-      type: appointmentType,
-      title: appointmentType
+      description: appointmentType  // Modification ici
     };
-
+  
     try {
       const success = await handleAdd(data);
       if (success) {
@@ -70,9 +69,6 @@ const AddAppointment = () => {
       console.error('Erreur détaillée:', error);
     }
   };
-
-  // ... reste du JSX de votre composant AddAppointment
-
 
 
   return (
